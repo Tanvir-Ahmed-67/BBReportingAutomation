@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -192,6 +193,11 @@ public class Main {
 
     private static List<Map<String, String>> readCSVData(String filePath) throws IOException {
         List<Map<String, String>> allData = new ArrayList<>();
+        // Check if file exists first to give a friendly error
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new IOException("The file 'test.csv' was not found in the folder!");
+        }
         try (Reader reader = new FileReader(filePath);
                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
                         .withFirstRecordAsHeader()
