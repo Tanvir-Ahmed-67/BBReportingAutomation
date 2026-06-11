@@ -58,7 +58,7 @@ public class AutomationService {
         e.printStackTrace(); // Keep stack trace in console for debugging
     }
 
-    public void runAutomation(File csvFile) {
+    public void runAutomation(File csvFile, String username, String password) { // Added username and password parameters
         shouldStop = false; // Reset stop flag for a new run
         log("Starting automation process...");
 
@@ -67,11 +67,19 @@ public class AutomationService {
             WebDriverManager.chromedriver().setup();
 
             ChromeOptions options = new ChromeOptions();
-            // options.addArguments("--headless"); // Uncomment if you want to run without
-            // browser UI
+            // --- OPTIMIZATION: Run in Headless Mode (uncomment to enable for faster, non-GUI execution) ---
+            // options.addArguments("--headless"); 
+            // --- OPTIMIZATION: Disable unnecessary features for faster startup and reduced resource usage ---
+            options.addArguments("--disable-gpu"); // Applicable for some OS, can prevent issues
+            options.addArguments("--no-sandbox"); // Bypass OS security model, crucial for some environments (e.g., Docker)
+            options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
+            options.addArguments("--disable-extensions"); // Disable browser extensions
+            options.addArguments("--disable-infobars"); // Disable info bars
+            options.addArguments("--remote-allow-origins=*"); // Allow remote origins for WebDriver connection
+            options.addArguments("--window-size=1920,1080"); // Set a consistent window size
+            options.addArguments("--start-maximized"); // Start browser maximized
 
             driver = new ChromeDriver(options); // Assign to instance variable
-            // INCREASED WAIT TIMEOUT TO 10 SECONDS to prevent TimeoutException
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); 
 
             // Check for stop signal before starting navigation
@@ -86,15 +94,15 @@ public class AutomationService {
             if (shouldStop) return;
 
             // Wait for Username field to be visible
-            WebElement usernameField = wait
+            WebElement usernameFieldElement = wait
                     .until(ExpectedConditions.visibilityOfElementLocated(By.id("P101_USERNAME")));
-            WebElement passwordField = driver.findElement(By.id("P101_PASSWORD"));
+            WebElement passwordFieldElement = driver.findElement(By.id("P101_PASSWORD"));
             WebElement loginButton = driver.findElement(By.xpath("//a[contains(text(), 'Login')]"));
 
-            // Enter credentials
+            // Enter credentials from GUI
             log("Entering credentials...");
-            usernameField.sendKeys("agrani");
-            passwordField.sendKeys("Dgmfrd#654213");
+            usernameFieldElement.sendKeys(username);
+            passwordFieldElement.sendKeys(password);
 
             // Check for stop signal
             if (shouldStop) return;

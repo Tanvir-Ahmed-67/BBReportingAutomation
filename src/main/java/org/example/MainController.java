@@ -4,7 +4,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -18,6 +20,11 @@ public class MainController {
 
     @FXML
     private TextArea outputTextArea;
+
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
 
     @FXML
     private Button browseButton;
@@ -35,6 +42,10 @@ public class MainController {
         // Initial state: Start and Browse enabled, Stop disabled
         startButton.setDisable(true); // Disable start until a file is selected
         stopButton.setDisable(true);
+
+        // Removed default values for username and password
+        // usernameField.setText("agrani");
+        // passwordField.setText("Dgmfrd#654213");
     }
 
     @FXML
@@ -70,6 +81,10 @@ public class MainController {
             browseButton.setDisable(true);
             stopButton.setDisable(false);
 
+            // Get username and password from the text fields
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+
             // Create a consumer to append messages to the TextArea
             Consumer<String> uiOutputConsumer = message -> {
                 Platform.runLater(() -> {
@@ -80,7 +95,7 @@ public class MainController {
             currentAutomationService = new AutomationService(uiOutputConsumer);
             automationThread = new Thread(() -> {
                 try {
-                    currentAutomationService.runAutomation(selectedFile);
+                    currentAutomationService.runAutomation(selectedFile, username, password);
                 } finally {
                     // This block runs whether automation finishes or is stopped
                     Platform.runLater(() -> {
